@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FX Program Backend</title>
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="row" id="doop"></div>
+                <h4 class="h4">Products</h4>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                </tr>
+                </thead>
+                <tbody id="products">
+
+
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-md-4">
+            <div class="row">
+                <h4 class="h-25">Add Product</h4>
+                <div class="row" id="pop">
+
+                </div>
+            </div>
+            <form id="product-form">
+                <div class="form-group">
+                    <label>Product Title</label>
+                    <input type="text" class="form-control" id="title" aria-describedby="emailHelp" placeholder="Title">
+                </div>
+                <div class="form-group">
+                    <label for="price">Product Price</label>
+                    <input type="text" class="form-control" id="price" placeholder="Price">
+                </div>
+                <div class="form-group">
+                    <label for="description">Product Description</label>
+                    <input type="text" class="form-control" id="description" placeholder="Description">
+                </div>
+                <div class="form-group">
+                    <label for="exampleFormControlFile1">Upload Zip File With Scripts</label>
+                    <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="add" class="btn btn-secondary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="./js/bootstrap.min.js"></script>
+<script src="./js/jquery.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+
+<script>
+    $(function () {
+        let title;
+        let description;
+        let price;
+        let file;
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        var firebaseConfig = {
+            apiKey: "AIzaSyDfSKpNCQx2RYw_RZZ1hYNeLvSs1tPVaCo",
+            authDomain: "metatrade-a6b88.firebaseapp.com",
+            projectId: "metatrade-a6b88",
+            storageBucket: "metatrade-a6b88.appspot.com",
+            messagingSenderId: "1050178737693",
+            appId: "1:1050178737693:web:a3dcd5ecb155e78f8fd8f4",
+            measurementId: "G-7L0KE53FTH"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+
+        loadProducts();
+
+        function deleteProduct(id) {
+
+            db.collection("products").doc(id).delete().then(() => {
+                $('#doop').empty();
+                $('#doop').append("<div class=\"alert alert-success\" role=\"alert\">\n" +
+                    "  Deleted!\n" +
+                    "</div>");
+
+            }).catch((error) => {
+                $('#doop').empty();
+                $('#doop').append("<div class=\"alert alert-danger\" role=\"alert\">\n" +
+                    "  Failed To Delete, Check Network!\n" +
+                    "</div>");
+            });
+            $('#products').empty();
+            loadProducts();
+        }
+
+        function loadProducts() {
+            db.collection("products").get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    document.getElementById('products').innerHTML += "<tr>\n" +
+                        "                        <th scope=\"row\">1</th>\n" +
+                        "                        <td>" + doc.data().title + "</td>\n" +
+                        "                        <td>" + doc.data().description + "</td>\n" +
+                        "                        <td>" + doc.data().price + "</td>\n" +
+                        "                        <td>\n" +
+                        "                            <button class=\"btn btn-info\">Edit</button>\n" +
+                        "                        </td>\n" +
+                        "                        <td>\n" +
+                        "                            <button id="+doc.id+" class=\"del btn btn-danger\">Delete</button>\n" +
+                        "                        </td>\n" +
+                        "                    </tr>"
+                })
+            })
+        }
+
+        function addProducts() {
+            db.collection("products").add({
+                title: title,
+                description: description,
+                price: price,
+                downloadLink: ''
+            })
+                .then((docRef) => {
+                    $('#pop').empty();
+                    $('#pop').append("<div class=\"alert alert-success\" role=\"alert\">\n" +
+                        " Product Added!\n" +
+                        "</div>");
+
+                })
+                .catch((error) => {
+                    $('#pop').empty();
+                    $('#pop').append("<div class=\"alert alert-danger\" role=\"alert\">\n" +
+                        "  Failed To Post, Check Network!\n" +
+                        "</div>");
+                });
+            $('#products').empty();
+            loadProducts();
+        }
+
+        document.body.addEventListener( 'click', function ( event ) {
+            if(event.target.classList[0] === 'del' ) {
+                let id = event.target.id;
+                deleteProduct(id);
+            };
+        } );
+
+
+
+        $("#product-form").on('submit', function (e) {
+            e.preventDefault();
+            addProducts();
+        });
+
+        $('#title').change(function () {
+            title = $('#title').val();
+            console.log(title);
+        });
+        $('#description').change(function () {
+            description = $('#description').val();
+            console.log(title)
+        });
+        $('#price').change(function () {
+            price = $('#price').val();
+            console.log(price)
+        });
+    })
+
+
+</script>
+</body>
+</html>
